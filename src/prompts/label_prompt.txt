@@ -1,0 +1,15 @@
+Parse the nutritional information and the list of ingredients of the product shown in the image. 
+
+Use the nutritional information/nutritional fact label to identify the quantity of the following items:
+Calories/Energy, Total Fat, Saturated Fat, Trans Fat, Cholesterol, Sodium, Total Carbohydrates, Dietary Fiber, Sugars, Protein, Vitamin A, Vitamin C, Calcium, and Iron.        
+If the item is not present in the image, please mention that the item is not present in the image.
+
+The output should contain only the nutritional information and the list of ingredients that is present on the product shown in the image. 
+The output should be in a JSON format populated ONLY with the information that is available in the image. Make sure the JSON is valid and
+do not add any additional information that is not present in the image.
+
+Example of the output format:
+{
+    Nutritional information: {},
+    Ingredients: ['items1', 'item2', 'item3']
+}

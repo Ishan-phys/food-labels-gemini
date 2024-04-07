@@ -1,5 +1,3 @@
-dotenv 
-langchain-google-genai
+python-dotenv 
+google-generativeai
 pillow
-
--e .
