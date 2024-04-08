@@ -1,3 +1,7 @@
 python-dotenv 
+langchain
 google-generativeai
+langchain-google-genai
+langchain_community
 pillow
+pypdf2
