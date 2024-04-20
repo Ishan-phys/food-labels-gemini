@@ -2,6 +2,11 @@ python-dotenv
 langchain
 google-generativeai
 langchain-google-genai
-langchain_community
+langchain-community
 pillow
 pypdf2
+chroma  
+langchainhub
+langchain-chroma
+
+-e .
