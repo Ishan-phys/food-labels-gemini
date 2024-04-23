@@ -2,6 +2,8 @@ import os
 import sys
 import cv2
 from PIL import Image
+import base64
+from io import BytesIO
 
 from src.logger import logger
 from src.exception import CustomException
@@ -34,20 +36,17 @@ def find_largest_contour(blurred_image):
         return None
 
 
-def preprocess_image(image_path):
+def preprocess_image(image):
     """Preprocess the raw image. Apply adaptive thresholding, noise removal, and extract the nutritional information label
     using longest contour.
 
     Args:
-        image_path (_type_): _description_
+        image
 
     Returns:
         pil image: the processed image
     """
     try:
-        # load the image
-        image = cv2.imread(image_path)
-
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -76,3 +75,29 @@ def preprocess_image(image_path):
         logger.error(error_message)
 
         return None
+    
+def convert_to_base64(image_file_path):
+    """
+    Convert PIL images to Base64 encoded strings
+
+    :param pil_image: PIL image
+    :return: Re-sized Base64 string
+    """
+
+    pil_image = Image.open(image_file_path)
+
+    buffered = BytesIO()
+    pil_image.save(buffered, format="png")  # You can change the format if needed
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
+
+def convert_to_html(img_base64):
+    """
+    Disply base64 encoded string as image
+
+    :param img_base64:  Base64 string
+    """
+    # Create an HTML img tag with the base64 string as the source
+    image_html = f'<img src="data:image/jpeg;base64,{img_base64}" style="max-width: 100%;"/>'
+    return image_html

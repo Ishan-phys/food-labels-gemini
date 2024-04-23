@@ -1,3 +1,8 @@
+from langchain_core.messages import HumanMessage, SystemMessage
+from src.utils.image_utils import preprocess_image
+import cv2
+
+
 lays_classic_example = """nutritional information per 100 g: 
     json object'{"Energy": "537 kCal",
         "Macronutrients": { 
@@ -90,19 +95,49 @@ cadbury_dairy_milk_example = """nutritional information per 100 g:
 }"""
 
 
-single_shot_prompt = """Parse the nutritional information and the list of ingredients of the product shown in the image. 
+def get_label_prompt(uploaded_image):
+    """Generate a prompt to get nutritional information from the LLM
 
-Use the nutritional information/nutritional fact label to identify the quantity of the following items:
-Calories/Energy, Total Fat, Saturated Fat, Trans Fat, Cholesterol, Sodium, Total Carbohydrates, Dietary Fiber, Sugars, Protein, Vitamin A, Vitamin C, Calcium, and Iron.        
-If the item is not present in the image, please mention that the item is not present in the image.
+    Args:
+        processed_image: the processed image
 
-The output should contain only the nutritional information and the list of ingredients that is present on the product shown in the image. 
-The output should be in a JSON format populated ONLY with the information that is available in the image. Make sure the JSON is valid and
-do not add any additional information that is not present in the image.
+    Returns:
+        str: the prompt
+    """
+    # Load and preprocess the images for example images of food labels
+            # load the image if it exists
 
-Example of the output format:
-{
-    Nutritional information: {},
-    Ingredients: ['items1', 'item2', 'item3']
-}
-"""
+    image1 = cv2.imread("images/lays_cropped.jpg") 
+    image1 = preprocess_image(image1)
+    image2 = cv2.imread("images/cadbury.jpg") 
+    image2 = preprocess_image(image2)
+
+    print("Images loaded and preprocessed successfully")
+
+    # Load and preprocess the images for the uploaded image
+    image3 = preprocess_image(uploaded_image)
+
+    print("Uploaded images loaded and preprocessed successfully")
+
+    image_message1 = {
+        "type": "image_url",
+        "image_url": image1
+    }
+
+    image_message2 = {
+        "type": "image_url",
+        "image_url": image2
+    }
+
+    image_message3 = {
+        "type": "image_url",
+        "image_url": image3
+    }
+
+    # Create a message with the examples of food labels
+    message = [
+        SystemMessage(content="You are a bot that is designed to extract nutritional information from the images of food labels. You will be given an image of a food label and you need to extract the nutritional information from it. You will be given examples of food labels to help you understand the task."),
+        HumanMessage(content=[image_message1, lays_classic_example, image_message2, cadbury_dairy_milk_example, image_message3])
+    ]
+
+    return message

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        select, input[type="file"], button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Image and Data</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="ageGroup">Age Group:</label>
+            <select id="ageGroup" name="ageGroup">
+                <option value="9-13">9-13</option>
+                <option value="14-18">14-18</option>
+                <option value="19-30">19-30</option>
+                <option value="31-50">31-50</option>
+                <option value="51+">51+</option>
+            </select>
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image">
+            <button type="button" onclick="submitForm()">Submit</button>
+        </form>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const form = document.getElementById('uploadForm');
+            const formData = new FormData(form);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseDiv = document.getElementById('response');
+                responseDiv.innerHTML = `<p>Response: ${JSON.stringify(data)}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
