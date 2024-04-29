@@ -1,7 +1,7 @@
 import json 
 import re
 
-def process_output(string):
+def process_output_string(string):
     """Process the output string and extract the content between the triple quotes
 
     Args:

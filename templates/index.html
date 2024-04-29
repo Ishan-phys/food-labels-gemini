@@ -84,7 +84,15 @@
             .then(response => response.json())
             .then(data => {
                 const responseDiv = document.getElementById('response');
-                responseDiv.innerHTML = `<p>Response: ${JSON.stringify(data)}</p>`;
+                if (data.status === 200) {
+                    const response = JSON.parse(data.response);
+                    // Do whatever you want with the 'response' variable here
+                responseDiv.innerHTML = `<p>Response: ${JSON.stringify(response)}</p>`;
+            } else {
+            // Handle other status codes if needed
+            // For example, display an error message
+            responseDiv.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
             })
             .catch(error => {
                 console.error('Error:', error);

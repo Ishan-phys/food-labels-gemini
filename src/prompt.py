@@ -1,101 +1,25 @@
 from langchain_core.messages import HumanMessage, SystemMessage
+# Import prompt template 
+from langchain.prompts import PromptTemplate
 from src.utils.image_utils import preprocess_image
 import cv2
 
 
-lays_classic_example = """nutritional information per 100 g: 
-    json object'{"Energy": "537 kCal",
-        "Macronutrients": { 
-            "Protein": "6.9 g",
-            "Carbohydrates": { 
-                "Total": "52.9 g",
-                "Sugar": "2.5 g"
-                },
-            "Dietary Fiber": "Not Present",
-            "Total Fat": {
-                "Total": "33.1 g",
-                "Saturated Fat": "12.5 g",
-                "Trans Fat": "0.1 g"
-                },
-            "Linoleic Acid": "Not Present",
-            "Linolenic acid": "Not Present"
-        },
-        "Minerals": { 
-            "Calcium": "Not Present",
-            "Iron": "Not Present",
-            "Magnesium": "Not Present",
-            "Phosphorus": "Not Present",
-            "Potassium": "Not Present",
-            "Sodium": "993 mg",
-            "Zinc": "Not Present",
-            "Cooper": "Not Present",
-            "Manganese": "Not Present",
-            "Selenium": "Not Present"
-        },
-        "Vitamins": {                
-            "Vitamin A": "Not Present",
-            "Vitamic E": "Not Present",
-            "Vitamin D": "Not Present",
-            "Vitamin C": "Not Present",
-            "Thiamin": "Not Present",
-            "Riboflavin": "Not Present",
-            "Niacin": "Not Present",
-            "Vitamin B6": "Not Present",
-            "Vitamin B12": "Not Present",
-            "Choline": "Not Present",
-            "Vitamin K": "Not Present",
-            "Folate": "Not Present"             
-    }
-}"""
+# Read the example prompts from the txt files
+with open("src/prompts/lays_classic_label_info.txt", "r") as file:
+    lays_classic_example = file.read()
 
+with open("src/prompts/cadbury_dairy_milk_label_info.txt", "r") as file:
+    cadbury_dairy_milk_example = file.read()
 
-cadbury_dairy_milk_example = """nutritional information per 100 g: 
-    json object'{"Energy": "534 kCal",
-        "Macronutrients": { 
-            "Protein": "7.3 g",
-            "Carbohydrates": {
-                "Total": "57 g",
-                "Sugar": "56 g"
-                },
-            "Dietary Fiber": "2.1 g",
-            "Total Fat": {
-                "Total": "30 g",
-                "Saturated Fat": "18 g",
-                "Trans Fat": "Not Present"
-            },
-            "Linoleic Acid": "Not Present",
-            "Linolenic acid": "Not Present"
-        },
-        "Minerals": { 
-            "Calcium": "Not Present",
-            "Iron": "Not Present",
-            "Magnesium": "Not Present",
-            "Phosphorus": "Not Present",
-            "Potassium": "Not Present",
-            "Sodium": "240 mg",
-            "Zinc": "Not Present",
-            "Cooper": "Not Present",
-            "Manganese": "Not Present",
-            "Selenium": "Not Present"
-        },
-        "Vitamins": {                
-            "Vitamin A": "Not Present",
-            "Vitamic E": "Not Present",
-            "Vitamin D": "Not Present",
-            "Vitamin C": "Not Present",
-            "Thiamin": "Not Present",
-            "Riboflavin": "Not Present",
-            "Niacin": "Not Present",
-            "Vitamin B6": "Not Present",
-            "Vitamin B12": "Not Present",
-            "Choline": "Not Present",
-            "Vitamin K": "Not Present",
-            "Folate": "Not Present"            
-    }
-}"""
+with open("src/prompts/rag_template.txt", "r") as file:
+    rag_prompt_template = file.read()
 
+def get_rag_prompt():
+    """Generate a prompt for the RAG model"""
+    return PromptTemplate.from_template(template=rag_prompt_template)
 
-def get_label_prompt(uploaded_image):
+def get_label_extraction_prompt(uploaded_image):
     """Generate a prompt to get nutritional information from the LLM
 
     Args:

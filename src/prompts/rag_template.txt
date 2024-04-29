@@ -1,0 +1,7 @@
+The nutritional goals for a healthy adult are given in the context. Use it to evaluate the food label info json object.
+Note that not present implies that the element is absent in the food label.
+
+Comment on the overall healthiness of the food based on the nutritional goals met.
+
+Context: {context}
+Food Label: {label_info}
