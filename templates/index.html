@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Upload</title>
@@ -14,29 +16,41 @@
             padding: 10;
             display: flex;
             justify-content: flex-start;
-            align-items: left; /* Aligns the container at the center */
-            height: 100vh; /* Adjusts the height to fit the viewport */
+            align-items: left;
+            /* Aligns the container at the center */
+            height: 100vh;
+            /* Adjusts the height to fit the viewport */
         }
+
         .container {
-            width: 100%; /* Adjusts the width to fit the viewport */
-            padding: 10px; /* Adds some padding */
+            width: 100%;
+            /* Adjusts the width to fit the viewport */
+            padding: 10px;
+            /* Adds some padding */
             background-color: #fff;
             border-radius: 4px;
             box-shadow: none;
             display: flex;
             flex-direction: column;
             align-items: left;
-            justify-content: flex-start; /* Aligns the content at the top */
-            height: 100%; /* Adjusts the height to fit the container */
+            justify-content: flex-start;
+            /* Aligns the content at the top */
+            height: 100%;
+            /* Adjusts the height to fit the container */
         }
+
         h1 {
             text-align: center;
         }
+
         label {
             display: block;
             margin-bottom: 10px;
         }
-        select, input[type="file"], button {
+
+        select,
+        input[type="file"],
+        button {
             width: 100%;
             padding: 5px;
             margin-bottom: 5px;
@@ -44,15 +58,18 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         button {
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         #response {
             height: 300px;
             overflow-y: scroll;
@@ -60,16 +77,23 @@
             padding: 5px;
             margin-top: 10px;
             white-space: pre-wrap;
-            width: 60%; /* Reduces the width of the response div */
-            display: none; /* Hides the response div initially */
+            width: 60%;
+            /* Reduces the width of the response div */
+            display: none;
+            /* Hides the response div initially */
         }
+
         #imagePreview {
-            width: 40%; /* Reduces the width of the image preview */
+            width: 40%;
+            /* Reduces the width of the image preview */
             height: 300px;
             object-fit: contain;
-            margin-left: 0px; /* Adds a margin to the left of the image preview */
-            display: none; /* Hides the image preview initially */
+            margin-left: 0px;
+            /* Adds a margin to the left of the image preview */
+            display: none;
+            /* Hides the image preview initially */
         }
+
         .response-container {
             display: flex;
             justify-content: space-between;
@@ -77,6 +101,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Upload Image and Data</h1>
@@ -112,7 +137,7 @@
             const formData = new FormData(form);
             const responseDiv = document.getElementById('response');
             const imagePreview = document.getElementById('imagePreview');
-            
+
             responseDiv.innerHTML = 'Awaiting response...'; // Shows "Awaiting response..." when the button is pressed
             responseDiv.style.display = 'block'; // Makes the response div visible
 
@@ -120,75 +145,61 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                console.log('Server Response:', response);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Data Received:', data);
-                if (data.status === 200 && data.response) {
-                    let formattedResponse = data.response.replace(/\\n/g, '<br/>').replace(/:\*\*(.*?)\*\*/g, '<strong>$1</strong>\n').replace(/\*\*/g, ' ');
-                    responseDiv.innerHTML = `<h2>Response:</h2>${formattedResponse}`;
-                    imagePreview.src = URL.createObjectURL(form.image.files[0]);
-                    imagePreview.style.display = 'block';
-                } else {
-                    responseDiv.innerHTML = `<h2>Error:</h2><p>${data.message}</p>`;
-                }
-            })
-            .catch(error => {
-                console.error('Fetch Error:', error);
-            });
-            imagePreview.onload = function() {
+                .then(response => {
+                    console.log('Server Response:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data Received:', data);
+                    if (data.status === 200 && data.response) {
+                        let formattedResponse = data.response.replace(/\\n/g, '<br/>').replace(/:\*\*(.*?)\*\*/g, '<strong>$1</strong>\n').replace(/\*\*/g, ' ');
+                        responseDiv.innerHTML = `<h2>Response:</h2>${formattedResponse}`;
+                        imagePreview.src = URL.createObjectURL(form.image.files[0]);
+                        imagePreview.style.display = 'block';
+                    } else {
+                        responseDiv.innerHTML = `<h2>Error:</h2><p>${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                });
+            imagePreview.onload = function () {
                 document.getElementById('download').style.display = 'block';
             }
         }
-        document.getElementById('download').addEventListener('click', function() {
-            var pdf = new jsPDF('p', 'mm', 'a4');
-            html2canvas(document.querySelector('#response'), {
-                scrollY: -window.scrollY,
-                scrollX: 0,
-                windowHeight: document.querySelector('#response').scrollHeight // Capture full height of response div
-            }).then(canvas =>  {
-                var imgData = canvas.toDataURL('image/png');
-                var imgWidth = 210; // image width in mm (A4 size)
-                var pageHeight = 295;  // page height in mm (A4 size)
-                var imgHeight = canvas.height// * imgWidth / canvas.width;
-                var heightLeft = imgHeight;
-                var position = 0;
-    
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-    
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                html2canvas(document.querySelector('#imagePreview'), { // Capture the image preview
-                    scrollY: -window.scrollY,
-                    scrollX: 0,
-                    windowWidth: document.documentElement.offsetWidth,
-                    windowHeight: document.documentElement.offsetHeight
-                }).then(canvas => {
-                    imgData = canvas.toDataURL('image/png');
-                    imgHeight = canvas.height //* imgWidth / canvas.width;
-                    heightLeft = imgHeight;
-                    position = 0;
-            
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-            
-                    while (heightLeft >= 0) {
-                        position = heightLeft - imgHeight;
+
+        document.getElementById('download').addEventListener('click', function () {
+            var element = document.getElementById('response').innerHTML;
+
+            // Define options for PDF generation
+            var options = {
+                margin: 10, // Set margins (in mm)
+                filename: 'document.pdf', // Set PDF filename
+                image: { type: 'jpeg', quality: 0.98 }, // Set image type and quality
+                html2canvas: { scale: 2 }, // Set scale factor for HTML2Canvas
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } // Set units, page format, and orientation for jsPDF
+                // Add more options as needed
+            };
+
+            // Generate PDF with specified options
+            html2pdf()
+                .set(options)
+                .from(element)
+                .toPdf()
+                .get('pdf')
+                .then(function (pdf) {
+                    // Retrieve image source automatically
+                    var imgSrc = document.getElementById('imagePreview').src; // Assuming the ID of the <img> element is 'image'
+
+                    // Add image to PDF
+                    var img = new Image();
+                    img.src = imgSrc;
+                    img.onload = function () {
                         pdf.addPage();
-                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                        heightLeft -= pageHeight;
-                    }
-                    pdf.save('download.pdf');
+                        pdf.addImage(img, 'JPEG', 10, 10, 100, 100); // Add image to PDF at position (10, 10) with width 50 and height 50 (in mm)
+                        pdf.save();
+                    };
                 });
-            });
         });
     </script>
     <style>
@@ -199,4 +210,5 @@
         }
     </style>
 </body>
+
 </html>
