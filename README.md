@@ -24,3 +24,8 @@ pip install -r requirements.txt
 ```bash
 touch .env
 ```
+
+## Run the FastAPI server
+```bash
+uvicorn app:app --reload
+```

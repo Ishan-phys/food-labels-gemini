@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from io import BytesIO
 
@@ -38,35 +39,49 @@ async def index(request: Request):
 
 @app.post("/upload")
 async def upload_file(image: UploadFile = Form(...), ageGroup: str = Form(...), gender: str = Form(...)):
-    
-    contents   = await image.read()
-    image_data = BytesIO(contents)
-    img        = Image.open(image_data)
-    rgb_image  = img.convert("RGB")
-    img.show()
+    """Function to upload the image and get the nutritional information from the image, 
+    and query the vector database to get the nutritional goals for the given age group.
 
-    image_array = np.array(rgb_image)
+    Args:
+        image (UploadFile, optional): _description_. Defaults to Form(...).
+        ageGroup (str, optional): _description_. Defaults to Form(...).
+        gender (str, optional): _description_. Defaults to Form(...).
 
-    print(f"read the image file: {image.filename}")
-    print(f"dropdown1: {ageGroup}")
-    print(f"dropdown2: {gender}")
+    Returns:
+        _type_: _description_
+    """
+    try:
+        contents   = await image.read()
+        image_data = BytesIO(contents)
+        img        = Image.open(image_data)
+        rgb_image  = img.convert("RGB")
 
-    age_group = str(ageGroup).lower()
-    gender    = str(gender).lower()
+        image_array = np.array(rgb_image)
+
+        logger.info(f"read the image file: {image.filename}")
+        logger.info(f"dropdown1: {ageGroup}")
+        logger.info(f"dropdown2: {gender}")
+
+        age_group = str(ageGroup).lower()
+        gender    = str(gender).lower()
+        
+        # Extract the nutritional information from the image
+        label_info = extract_info_from_label(image_array)
+        
+        if label_info is None:
+            return JSONResponse({"status":500, "response": "Error processing the image"})
+        
+        else: 
+            # Query the vector database to get the nutritional goals for the given age group and gender
+            response = query_vector_db(label_info, gender, age_group, rag_prompt=get_rag_prompt())
+            logger.info(f"Response from the model: {response}")
+
+        return JSONResponse({"status":200, "response": response})
     
-    # Extract the nutritional information from the image
-    label_info = extract_info_from_label(image_array)
-    
-    if label_info is None:
+    except Exception as e:
+        error_message = CustomException(e, sys)
+        logger.error(error_message)
         return JSONResponse({"status":500, "response": "Error processing the image"})
-    
-    else: 
-        # Query the vector database to get the nutritional goals for the given age group and gender
-        response = query_vector_db(label_info, gender, age_group, rag_prompt=get_rag_prompt())
-
-        print(f"Response from the model: {response}")
-
-    return JSONResponse({"status":200, "response": response})
 
 
 if __name__ == "__main__":
